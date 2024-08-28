@@ -18,9 +18,7 @@ import {IndexRegistry} from "@eigenlayer-middleware/src/IndexRegistry.sol";
 import {StakeRegistry} from "@eigenlayer-middleware/src/StakeRegistry.sol";
 import "@eigenlayer-middleware/src/OperatorStateRetriever.sol";
 
-import {IncredibleSquaringServiceManager, IServiceManager} from "../src/IncredibleSquaringServiceManager.sol";
-import {IncredibleSquaringTaskManager} from "../src/IncredibleSquaringTaskManager.sol";
-import {IIncredibleSquaringTaskManager} from "../src/IIncredibleSquaringTaskManager.sol";
+import {AppEngineServiceManager, IServiceManager} from "../src/AppEngineServiceManager.sol";
 import "../src/ERC20Mock.sol";
 
 import {Utils} from "./utils/Utils.sol";
@@ -66,12 +64,8 @@ contract IncredibleSquaringDeployer is Script, Utils {
 
     OperatorStateRetriever public operatorStateRetriever;
 
-    IncredibleSquaringServiceManager public incredibleSquaringServiceManager;
+    AppEngineServiceManager public incredibleSquaringServiceManager;
     IServiceManager public incredibleSquaringServiceManagerImplementation;
-
-    IncredibleSquaringTaskManager public incredibleSquaringTaskManager;
-    IIncredibleSquaringTaskManager
-        public incredibleSquaringTaskManagerImplementation;
 
     function run() external {
         // Eigenlayer contracts
@@ -203,16 +197,7 @@ contract IncredibleSquaringDeployer is Script, Utils {
          * First, deploy upgradeable proxy contracts that **will point** to the implementations. Since the implementation contracts are
          * not yet deployed, we give these proxies an empty contract as the initial implementation, to act as if they have no code.
          */
-        incredibleSquaringServiceManager = IncredibleSquaringServiceManager(
-            address(
-                new TransparentUpgradeableProxy(
-                    address(emptyContract),
-                    address(incredibleSquaringProxyAdmin),
-                    ""
-                )
-            )
-        );
-        incredibleSquaringTaskManager = IncredibleSquaringTaskManager(
+        incredibleSquaringServiceManager = AppEngineServiceManager(
             address(
                 new TransparentUpgradeableProxy(
                     address(emptyContract),
@@ -358,11 +343,10 @@ contract IncredibleSquaringDeployer is Script, Utils {
             );
         }
 
-        incredibleSquaringServiceManagerImplementation = new IncredibleSquaringServiceManager(
+        incredibleSquaringServiceManagerImplementation = new AppEngineServiceManager(
             avsDirectory,
             registryCoordinator,
-            stakeRegistry,
-            incredibleSquaringTaskManager
+            stakeRegistry
         );
         // Third, upgrade the proxy contracts to use the correct implementation contracts and initialize them.
         incredibleSquaringProxyAdmin.upgrade(
@@ -370,26 +354,6 @@ contract IncredibleSquaringDeployer is Script, Utils {
                 payable(address(incredibleSquaringServiceManager))
             ),
             address(incredibleSquaringServiceManagerImplementation)
-        );
-
-        incredibleSquaringTaskManagerImplementation = new IncredibleSquaringTaskManager(
-            registryCoordinator,
-            TASK_RESPONSE_WINDOW_BLOCK
-        );
-
-        // Third, upgrade the proxy contracts to use the correct implementation contracts and initialize them.
-        incredibleSquaringProxyAdmin.upgradeAndCall(
-            TransparentUpgradeableProxy(
-                payable(address(incredibleSquaringTaskManager))
-            ),
-            address(incredibleSquaringTaskManagerImplementation),
-            abi.encodeWithSelector(
-                incredibleSquaringTaskManager.initialize.selector,
-                incredibleSquaringPauserReg,
-                incredibleSquaringCommunityMultisig,
-                AGGREGATOR_ADDR,
-                TASK_GENERATOR_ADDR
-            )
         );
 
         // WRITE JSON DATA
@@ -415,16 +379,6 @@ contract IncredibleSquaringDeployer is Script, Utils {
             deployed_addresses,
             "credibleSquaringServiceManagerImplementation",
             address(incredibleSquaringServiceManagerImplementation)
-        );
-        vm.serializeAddress(
-            deployed_addresses,
-            "credibleSquaringTaskManager",
-            address(incredibleSquaringTaskManager)
-        );
-        vm.serializeAddress(
-            deployed_addresses,
-            "credibleSquaringTaskManagerImplementation",
-            address(incredibleSquaringTaskManagerImplementation)
         );
         vm.serializeAddress(
             deployed_addresses,
