@@ -11,6 +11,7 @@ import { BuildAllConfig, Clients, buildAll } from './eigensdk/chainio/clients/bu
 import { OperatorId } from './eigensdk/types/general';
 import {timeout} from './utils'
 import { g1PointToArgs } from './eigensdk/utils/helpers';
+import "./app-engine/server.js";
 
 const logger = pino({
     level: 'info', // Set log level here
@@ -40,8 +41,6 @@ class SquaringOperator {
 		logger.info("ECDSA key loaded.")
         await this.loadClients();
 		logger.info("Clients key loaded.")
-        await this.loadTaskManager();
-		logger.info("TaskMan key loaded.")
         if (this.config.register_operator_on_startup === true) {
 			await this.register();
 			logger.info("Register done.")
@@ -165,22 +164,10 @@ class SquaringOperator {
             this.config.eth_rpc_url,
             this.config.avs_registry_coordinator_address,
             this.config.operator_state_retriever_address,
-            "incredible-squaring",
+            "app-engine",
             this.config.eigen_metrics_ip_port_address,
 		);
         this.clients = await buildAll(cfg, this.operatorEcdsaPrivateKey!, logger);
-    }
-
-    private async loadTaskManager(): Promise<void> {
-        const web3: Web3 = new Web3(new Web3.providers.HttpProvider(this.config.eth_rpc_url));
-
-        const serviceManagerAddress: string = this.clients.avsRegistryWriter.serviceManagerAddr;
-        const serviceManagerAbi: any = JSON.parse(fs.readFileSync("abis/IncredibleSquaringServiceManager.json", 'utf8'));
-        const serviceManager = new web3.eth.Contract(serviceManagerAbi, serviceManagerAddress);
-
-        const taskManagerAddress: string = await serviceManager.methods.incredibleSquaringTaskManager().call();
-        const taskManagerAbi: any = JSON.parse(fs.readFileSync("abis/IncredibleSquaringTaskManager.json", 'utf8'));
-        this.taskManager = new web3.eth.Contract(taskManagerAbi, taskManagerAddress);
     }
 
     private async loadOperatorId(): Promise<void> {
