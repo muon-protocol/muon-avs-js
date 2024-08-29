@@ -1,3 +1,4 @@
+import "dotenv/config";
 import * as fs from 'fs';
 import axios from 'axios'
 import * as yaml from 'js-yaml';

@@ -1,6 +1,6 @@
 const soliditySha3 = require("../app-utils/utils/soliditySha3");
 const crypto = require("../app-utils/utils/crypto");
-const Web3 = require("web3");
+const {Web3} = require("web3");
 const ethSigUtil = require("@metamask/eth-sig-util");
 
 const web3 = new Web3();

@@ -1,11 +1,10 @@
 //It is recommended to use ethers4.0.47 version
 var ethers = require('ethers')
 const TronWeb = require('tronweb')
-const Web3 = require('web3');
+const {Web3} = require('web3');
 
 // console.log(TronWeb.utils)
-
-const AbiCoder = ethers.utils.AbiCoder;
+const AbiCoder = ethers.AbiCoder;
 const ADDRESS_PREFIX_REGEX = /^(41)/;
 const ADDRESS_PREFIX = "41";
 

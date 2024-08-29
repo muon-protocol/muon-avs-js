@@ -1,4 +1,4 @@
-const Web3 = require('web3')
+const {Web3} = require('web3')
 const EventEmbitter = require('events')
 const HttpProvider = Web3.providers.HttpProvider
 const WebsocketProvider = Web3.providers.WebsocketProvider
@@ -9,6 +9,7 @@ const ERC721_ABI = require('../data/ERC721-ABI.json')
 
 const _generalWeb3Instance = new Web3()
 const soliditySha3 = _generalWeb3Instance.utils.soliditySha3
+
 
 const _networksWeb3 = {
   ganache: new Web3(new HttpProvider(process.env.WEB3_PROVIDER_GANACHE)),
