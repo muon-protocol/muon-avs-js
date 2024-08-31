@@ -41,10 +41,11 @@ router.use("*", async (req, res, next) => {
   } = mixed;
 
   if (!["sign", "view"].includes(mode)) {
-    return res.json({
+    res.json({
       success: false,
       error: { message: "Request mode is invalid" },
     });
+    return next();
   }
 
   gwSign = false; // do not allow gwSign for shiled nodes
@@ -70,27 +71,40 @@ router.use("*", async (req, res, next) => {
     .catch((error) => {
       if (error.code === "ECONNREFUSED" || error.code === "ECONNABORTED")
         forwardUrls.shift();
-      return res.json({
+      res.json({
         success: false,
         error,
       });
     });
 
-  if (result.success) {
+  if(!result) {
+    return next();
+  }
+
+  console.log("test");
+  if (!result.success) {
+    res.json(result);
+  } else {
     try {
       await confirmResponse(requestData, result.result);
+      res.json(result);
     } catch (ex) {
       console.log(ex);
-      return res.json({
+      res.json({
         success: false,
         error: ex,
       });
     }
   }
-  // console.log(result);
-  return res.json(result);
+
+  return next();
 });
 
-router.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
-});
+module.exports = {
+  router,
+  start: () => {
+    router.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}.`);
+    });    
+  }
+}

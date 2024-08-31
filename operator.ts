@@ -12,7 +12,7 @@ import { BuildAllConfig, Clients, buildAll } from './eigensdk/chainio/clients/bu
 import { OperatorId } from './eigensdk/types/general';
 import {timeout} from './utils'
 import { g1PointToArgs } from './eigensdk/utils/helpers';
-import "./app-engine/server.js";
+const gateway = require("./app-engine/server.js");
 
 const logger = pino({
     level: 'info', // Set log level here
@@ -28,7 +28,6 @@ class SquaringOperator {
     private operatorEcdsaPrivateKey?: string;
 	// @ts-ignore
     private clients: Clients; // Adjust type based on the actual type inferred or defined
-    private taskManager: any; // Adjust type based on the actual type inferred or defined
     private operatorId?: OperatorId;
 
     constructor(config: any) {
@@ -81,6 +80,13 @@ class SquaringOperator {
     }
 
     public async start(): Promise<void> {
+        gateway.start();
+        gateway.router.use((req: any, res: any, next: any) => {
+            if(res.success) {
+
+            }
+            next();
+        });
         logger.info("Starting Operator...");
 		let latestBlock:bigint|string = 'latest';
 		const web3 = new Web3(new Web3.providers.HttpProvider(this.config.eth_rpc_url));
@@ -88,16 +94,6 @@ class SquaringOperator {
 		while (true) {
 			try {
 				const currentBlock = await web3.eth.getBlockNumber();
-				const events:any[] = await this.taskManager.getPastEvents("NewTaskCreated", {
-					fromBlock: latestBlock,
-					toBlock: currentBlock
-				});
-	
-				events.forEach(event => {
-					logger.info(event, 'Event received:');
-					this.processTaskEvent(event)
-				});
-	
 				latestBlock = currentBlock + 1n; // Move to the next block for the next poll
 			} catch (error) {
 				logger.error(error, 'Error polling for events:');
@@ -107,7 +103,7 @@ class SquaringOperator {
 		}
     }
 
-    public processTaskEvent(event: any): void {
+    public processSignature(event: any): void {
         const taskIndex: number = event.returnValues.taskIndex;
         const numberToBeSquared: bigint = event.returnValues.task.numberToBeSquared;
         const numberSquared: bigint = numberToBeSquared ** 2n;
