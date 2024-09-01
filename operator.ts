@@ -22,7 +22,7 @@ const logger = pino({
 	},
 });
 
-class SquaringOperator {
+class AppEngineOperator {
     private config: any;
     private blsKeyPair?: KeyPair;
     private operatorEcdsaPrivateKey?: string;
@@ -91,7 +91,7 @@ class SquaringOperator {
             }
             next();
         });
-        gateway.start();
+        return new Promise((resolve: any, reject: any) => gateway.start(logger));
     }
 
     public processSignature(gatewayResponse: any): any {
@@ -169,7 +169,7 @@ async function main() {
     const configFile: string = fs.readFileSync("config-files/operator.anvil.yaml", 'utf8');
     const config: any = yaml.load(configFile, { schema: yaml.JSON_SCHEMA }) as any;
 	
-    const operator = new SquaringOperator(config)
+    const operator = new AppEngineOperator(config)
 	await operator.init();
 	return operator.start();
 }

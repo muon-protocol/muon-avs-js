@@ -99,9 +99,9 @@ router.use("*", async (req, res, next) => {
 
 module.exports = {
   router,
-  start: () => {
+  start: (logger) => {
     router.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}.`);
+      logger.info(`Server is running on port ${PORT}.`);
     });    
   }
 }
