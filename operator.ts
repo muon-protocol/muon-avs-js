@@ -80,56 +80,45 @@ class SquaringOperator {
     }
 
     public async start(): Promise<void> {
-        gateway.start();
+        logger.info("Starting Operator...");
         gateway.router.use((req: any, res: any, next: any) => {
-            if(res.success) {
-
+            const { gatewayResponse } = req
+            if(gatewayResponse.success) {
+                res.json({
+                    ...gatewayResponse,
+                    "eigenlayerSig": this.processSignature(gatewayResponse)
+                });
             }
             next();
         });
-        logger.info("Starting Operator...");
-		let latestBlock:bigint|string = 'latest';
-		const web3 = new Web3(new Web3.providers.HttpProvider(this.config.eth_rpc_url));
-	
-		while (true) {
-			try {
-				const currentBlock = await web3.eth.getBlockNumber();
-				latestBlock = currentBlock + 1n; // Move to the next block for the next poll
-			} catch (error) {
-				logger.error(error, 'Error polling for events:');
-			}
-	
-			await timeout(5000);
-		}
+        gateway.start();
     }
 
-    public processSignature(event: any): void {
-        const taskIndex: number = event.returnValues.taskIndex;
-        const numberToBeSquared: bigint = event.returnValues.task.numberToBeSquared;
-        const numberSquared: bigint = numberToBeSquared ** 2n;
-        const encoded: string = web3Eth.abi.encodeParameters(["uint32", "uint256"], [taskIndex, numberSquared]);
+    public processSignature(gatewayResponse: any): any {
+        const {result: {data: { signParams }}} = gatewayResponse;
+        console.log(signParams);
+        const abi = signParams.map((i: {type: string}) => i.type);
+        const values = signParams.map((i: {value: any}) => i.value);
+        const encoded: string = web3Eth.abi.encodeParameters(abi, values);
         const hashBytes: string = Web3.utils.keccak256(encoded);
         const signature: Signature = this.blsKeyPair?.signMessage(hashBytes)!;
         logger.info(
-            `Signature generated, task id: ${taskIndex}, number squared: ${numberSquared}, signature: ${signature.getStr()}`
+            `Signature generated, signature: ${signature.getStr()}`
         );
         const data = {
-            task_id: taskIndex.toString(10),
-            number_to_be_squared: "0x"+numberToBeSquared.toString(16),
-            number_squared: "0x"+numberSquared.toString(16),
             signature: g1PointToArgs(signature),
-            block_number: "0x"+event.blockNumber.toString(16),
             operator_id: this.operatorId,
         };
-        logger.info(`Submitting result for task to aggregator ${JSON.stringify(data)}`);
-        // prevent submitting task before initialize_new_task gets completed on aggregator
-        setTimeout(() => {
-            const url = `http://${this.config.aggregator_server_ip_port_address}/signature`;
-            axios.post(url, data)
-			.catch(e => {
-				logger.error(`An error occurred when sending signature to TaskIndex: ${taskIndex}`, e)
-			})
-        }, 3000);
+        return data;
+        // logger.info(`Submitting result for task to aggregator ${JSON.stringify(data)}`);
+        // // prevent submitting task before initialize_new_task gets completed on aggregator
+        // setTimeout(() => {
+        //     const url = `http://${this.config.aggregator_server_ip_port_address}/signature`;
+        //     axios.post(url, data)
+		// 	.catch(e => {
+		// 		logger.error(`An error occurred when sending signature to TaskIndex: ${taskIndex}`, e)
+		// 	})
+        // }, 3000);
     }
 
     private async loadBlsKey(): Promise<void> {

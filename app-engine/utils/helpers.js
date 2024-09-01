@@ -18,7 +18,7 @@ function moduleIsAvailable(path) {
 
 async function runMounApp(request, appResponse) {
   const { app, method, params = {} } = request;
-  let appPath = `../muon-apps/${app}.js`;
+  let appPath = `../apps/${app}.js`;
 
   if (!moduleIsAvailable(appPath)) {
     throw { message: `App not found on shield node` };

@@ -8,7 +8,7 @@ const bodyParser = require("body-parser");
 const PORT = process.env.SERVER_PORT || 3000;
 const SHIELD_FORWARD_URLS = process.env.SHIELD_FORWARD_URLS;
 const FEE_PK = process.env.FEE_PRIVATE_KEY;
-const { confirmResponse, muonFeeSignature } = require("./utils/muon-helpers");
+const { confirmResponse, muonFeeSignature } = require("./utils/helpers");
 global.MuonAppUtils = require("./app-utils");
 
 const originalForwardUrls = SHIELD_FORWARD_URLS.split(",");
@@ -45,7 +45,6 @@ router.use("*", async (req, res, next) => {
       success: false,
       error: { message: "Request mode is invalid" },
     });
-    return next();
   }
 
   gwSign = false; // do not allow gwSign for shiled nodes
@@ -78,16 +77,16 @@ router.use("*", async (req, res, next) => {
     });
 
   if(!result) {
-    return next();
+    return;
   }
 
-  console.log("test");
   if (!result.success) {
     res.json(result);
   } else {
     try {
       await confirmResponse(requestData, result.result);
-      res.json(result);
+      req.gatewayResponse = result;
+      return next();
     } catch (ex) {
       console.log(ex);
       res.json({
@@ -96,8 +95,6 @@ router.use("*", async (req, res, next) => {
       });
     }
   }
-
-  return next();
 });
 
 module.exports = {
