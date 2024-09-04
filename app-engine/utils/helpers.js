@@ -45,7 +45,7 @@ async function runMounApp(request, appResponse) {
 async function confirmResponse(requestData, appResponse) {
   // response hash without appId and reqId
   const responseHash = soliditySha3(appResponse.data.signParams.slice(2));
-  appResponse.shieldAddress = process.env.SIGN_WALLET_ADDRESS;
+  // appResponse.shieldAddress = process.env.SIGN_WALLET_ADDRESS;
 
   const appSignParams = await runMounApp(requestData, appResponse);
   const shieldHash = soliditySha3(appSignParams);
@@ -57,10 +57,10 @@ async function confirmResponse(requestData, appResponse) {
   }
 
   // sha3 of all of the parameters
-  let hashToBeSigned = soliditySha3(appResponse.data.signParams);
-  let cryptoSign = crypto.sign(hashToBeSigned);
-  appResponse.shieldSignature = cryptoSign;
-  appResponse.nodeSignature = cryptoSign;
+  // let hashToBeSigned = soliditySha3(appResponse.data.signParams);
+  // let cryptoSign = crypto.sign(hashToBeSigned);
+  // appResponse.shieldSignature = cryptoSign;
+  // appResponse.nodeSignature = cryptoSign;
 }
 
 function muonFeeSignature(PK, appId) {

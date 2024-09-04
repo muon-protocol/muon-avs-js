@@ -84,10 +84,8 @@ class AppEngineOperator {
         gateway.router.use((req: any, res: any, next: any) => {
             const { gatewayResponse } = req
             if(gatewayResponse.success) {
-                res.json({
-                    ...gatewayResponse,
-                    "eigenlayerSig": this.processSignature(gatewayResponse)
-                });
+                gatewayResponse.result.eigenlayer = this.processSignature(gatewayResponse);
+                res.json(gatewayResponse);
             }
             next();
         });
@@ -101,13 +99,15 @@ class AppEngineOperator {
         const values = signParams.map((i: {value: any}) => i.value);
         const encoded: string = web3Eth.abi.encodeParameters(abi, values);
         const hashBytes: string = Web3.utils.keccak256(encoded);
-        const signature: Signature = this.blsKeyPair?.signMessage(hashBytes)!;
+        // const signature: Signature = this.blsKeyPair?.signMessage(hashBytes)!;
+        const signature = web3Eth.accounts.sign(hashBytes, this.operatorEcdsaPrivateKey!);
         logger.info(
-            `Signature generated, signature: ${signature.getStr()}`
+            `Signature generated, signature: ${signature.signature}`
         );
         const data = {
-            signature: g1PointToArgs(signature),
+            signature: signature.signature,
             operator_id: this.operatorId,
+            operator_address: this.config.operator_address
         };
         return data;
         // logger.info(`Submitting result for task to aggregator ${JSON.stringify(data)}`);
