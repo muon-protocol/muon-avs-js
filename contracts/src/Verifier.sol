@@ -4,6 +4,7 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import "./interfaces/IMuonClient.sol";
+import "./libs/EigenLayerVerifier.sol";
 
 contract Verifier is AccessControl {
     using ECDSA for bytes32;
@@ -74,9 +75,9 @@ contract Verifier is AccessControl {
         );
         require(verified, "Invalid signature!");
 
-        hash = hash.toEthSignedMessageHash();
-        address signatureSigner = hash.recover(signature);
-
-        require(signatureSigner == operator, "Signer is not valid");
+        require(
+            EigenLayerVerifier.verifyOperatorSig(hash, operator, signature),
+            "Signer is not valid"
+        );
     }
 }
