@@ -10,7 +10,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "operator": "node operator.js"
+    "operator": "make start-operator"
   },
   "dependencies": {
     "@metamask/eth-sig-util": "^7.0.1",

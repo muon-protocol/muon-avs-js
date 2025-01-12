@@ -12,6 +12,7 @@ import { BuildAllConfig, Clients, buildAll } from './eigensdk/chainio/clients/bu
 import { OperatorId } from './eigensdk/types/general';
 import {timeout} from './utils'
 import { g1PointToArgs } from './eigensdk/utils/helpers';
+const { soliditySha3 } = require("./app-engine/app-utils/index.js");
 const gateway = require("./app-engine/server.js");
 
 const logger = pino({
@@ -39,15 +40,15 @@ class AppEngineOperator {
 		logger.info("BLS key loaded.")
         await this.loadEcdsaKey();
 		logger.info("ECDSA key loaded.")
-        await this.loadClients();
-		logger.info("Clients key loaded.")
-        if (this.config.register_operator_on_startup === true) {
-			await this.register();
-			logger.info("Register done.")
-        }
+        // await this.loadClients();
+		// logger.info("Clients key loaded.")
+        // if (this.config.register_operator_on_startup === true) {
+		// 	await this.register();
+		// 	logger.info("Register done.")
+        // }
         // operator id can only be loaded after registration
-        await this.loadOperatorId();
-		logger.info(`OperatorId loaded: ${this.operatorId}.`)
+        // await this.loadOperatorId();
+		// logger.info(`OperatorId loaded: ${this.operatorId}.`)
 	}
 
     public async register(): Promise<void> {
@@ -93,20 +94,17 @@ class AppEngineOperator {
     }
 
     public processSignature(gatewayResponse: any): any {
-        const {result: {data: { signParams }}} = gatewayResponse;
-        console.log(signParams);
-        const abi = signParams.map((i: {type: string}) => i.type);
-        const values = signParams.map((i: {value: any}) => i.value);
-        const encoded: string = web3Eth.abi.encodeParameters(abi, values);
-        const hashBytes: string = Web3.utils.keccak256(encoded);
+        const {result} = gatewayResponse;
+        logger.info(result);
         // const signature: Signature = this.blsKeyPair?.signMessage(hashBytes)!;
-        const signature = web3Eth.accounts.sign(hashBytes, this.operatorEcdsaPrivateKey!);
+        let hashToBeSigned = soliditySha3(result.data.signParams);
+        const signature = web3Eth.accounts.sign(hashToBeSigned!, this.operatorEcdsaPrivateKey!);
         logger.info(
-            `Signature generated, signature: ${signature.signature}`
+            `Operator signature: ${signature.signature}`
         );
         const data = {
             signature: signature.signature,
-            operator_id: this.operatorId,
+            // operator_id: this.operatorId,
             operator_address: this.config.operator_address
         };
         return data;
@@ -143,6 +141,7 @@ class AppEngineOperator {
 		const web3 = new Web3();
 		const account = await web3.eth.accounts.decrypt(keystore, ecdsaKeyPassword)
         this.operatorEcdsaPrivateKey = account.privateKey;
+        console.log(`Operator address: ${account.address}`);
     }
 
     private async loadClients(): Promise<void> {
