@@ -2,7 +2,7 @@
 # MUON-AVS-JS - EigenLayer AVS (Offchain Component)
 
 ## Overview
-**MUON-AVS-JS** is the offchain component of the Muon AVS (Application Verification System) built on top of **EigenLayer**. The purpose of this system is to provide security for applications deployed on the Muon network, ensuring that the operations can be verified securely and trustlessly using threshold signatures (TSS) while utilizing EigenLayer's security primitives. 
+**MUON-AVS-JS** is the offchain component of the Muon AVS (Autonomous Verifiable Service) built on top of **EigenLayer**. The purpose of this system is to provide security for applications deployed on the Muon network, ensuring that the operations can be verified securely and trustlessly using threshold signatures (TSS) while utilizing EigenLayer's security primitives. 
 
 ## Muon Nodes on EigenLayer
 The Muon TSS network is decentralized and secure, eliminating any single point of failure through threshold signatures. However, risks of collusion among subnet nodes can still exist. To mitigate this, we’ve implemented a modular security model that combines proofs from multiple validators.
