@@ -1,13 +1,10 @@
 {
-  "name": "app-engine-avs",
-  "description": "A Javascript implementation of the EigenLayer AVS",
+  "name": "muon-avs",
+  "description": "Off-chain component of MUON AVS to run on EigenLayer operators",
   "version": "0.0.1",
   "author": "",
-  "license": "ISC",
-  "main": "index.ts",
-  "directories": {
-    "test": "tests"
-  },
+  "license": "MIT",
+  "main": "operator.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "operator": "make start-operator"
@@ -16,7 +13,6 @@
     "@metamask/eth-sig-util": "^7.0.1",
     "axios": "^1.7.2",
     "body-parser": "^1.20.2",
-    "eigensdk": "file:/home/sadegh/Projects/zellular/eigensdk-js",
     "eth-lib": "^0.1.29",
     "ethereumjs-util": "^7.1.5",
     "ethers": "^6.13.1",
