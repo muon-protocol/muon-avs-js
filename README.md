@@ -30,12 +30,12 @@ The off-chain component provides an API endpoint for projects to execute off-cha
     ```
     cp .env.example .env
     ```
-
-3. **Register and Start Operato**:
+    > **Note:** Set the `SIGNING_ECDSA_KEY_PATH` variable in the `.env` file to specify the path of the key file.
+3. **Start Operator**:
     ```
-    make start-operator
+    KEY_PASSWORD=<key-password> pm2 start npm -- run operator
     ```
-
+    > **Tip:** You can ignore the `KEY_PASSWORD` variable if the key file is not encrypted or if you have used an empty password.
 ## Usage
 
 1. **Deploying Muon Apps**:
@@ -44,12 +44,11 @@ The off-chain component provides an API endpoint for projects to execute off-cha
 
 2. **App Deployment Directory**:
    - Copy the deployed apps into the `app-engine/apps` directory.
-   - Configurations are located in the `config-files/` directory.
    - Use the [LayerZero DVN app](./app-engine/apps/layerzero_dvn.js) as an example.
 
 3. **Example Usage Command**:
     ```bash
-    curl -g "http://localhost:3000/v1/?app=layerzero_dvn&method=verify&params[jobId]=3&params[network]=ftm"
+    curl -g "http://localhost:3000/v1/?app=evm_data_verifier&method=get-block&params[network]=bsc&params[block]=47516590"
     ```
 
 4. **Signature Output**:
