@@ -1,23 +1,10 @@
 
-# MUON-AVS-JS - EigenLayer AVS (Offchain Component)
+# MuonAVS (Offchain Component)
 
 ## Overview
-**MUON-AVS-JS** is the offchain component of the Muon AVS (Autonomous Verifiable Service) built on top of **EigenLayer**. The purpose of this system is to provide security for applications deployed on the Muon network, ensuring that the operations can be verified securely and trustlessly using threshold signatures (TSS) while utilizing EigenLayer's security primitives. 
 
-## Muon Nodes on EigenLayer
-The Muon TSS network is decentralized and secure, eliminating any single point of failure through threshold signatures. However, risks of collusion among subnet nodes can still exist. To mitigate this, we’ve implemented a modular security model that combines proofs from multiple validators.
-
-### Key Features
-- **Muon EigenLayer Nodes**: Nodes running the Muon app engine can execute MuonApps, handle requests, and provide their own proofs.
-- **Security Modules and Validators**: The security model extends beyond the Muon TSS network and EigenLayer nodes. Projects can also deploy their own Shield nodes or use nodes operated by trusted third parties.
-
-## How It Works Together
-1. **MuonApps Deployment**: Projects develop their own MuonApps and deploy them on the Muon Network.
-2. **Execution of MuonApps**: MuonApps are executed on multiple nodes (MUON TSS network nodes, EigenLayer nodes, and possibly Shield nodes) as micro validators. These nodes receive requests from users, execute them, and sign the responses.
-3. **Verification**: The responses (data) and proofs are verifiable either on-chain or off-chain.
-4. **Modular Security Stack**: The security stack is modular, allowing projects to choose verifiers and modules that meet their specific needs.
-
-The off-chain component provides an API endpoint for projects to execute off-chain operations. Once the application is deployed, users can request an application and receive a signature that can be validated either on-chain or off-chain.
+This repository is the off-chain component of the Muon AVS, a key security layer of Muon that runs MuonApps on EigenLayer nodes.  
+Muon is a general-purpose validation layer for Web3. DApps can run essential components as MuonApps, acting as micro-validators on the Muon Network and Muon AVS. These micro-validators enable DApps to validate data and generate proofs that can be verified on any blockchain or off-chain component.
 
 ## Setup Instructions
 
@@ -36,24 +23,22 @@ The off-chain component provides an API endpoint for projects to execute off-cha
     KEY_PASSWORD=<key-password> pm2 start npm -- run operator
     ```
     > **Tip:** You can ignore the `KEY_PASSWORD` variable if the key file is not encrypted or if you have used an empty password.
+4. **Allow External Access to the Micro Validator Service**:  
+    Check with the team to make the microservice public.
+
 ## Usage
+The Micro Validator Engine runs as a web service on port `3000` by default. You can send requests to various MuonApps to retrieve response and signatures.  
+For example, you can use the [EVM Verifier MuonApp](./app-engine/apps/evm_data_verifier.js)] to fetch data from EVM chains, validate it, and generate signatures. This App can be useful for interchain protocols, bridges, and more.
 
-1. **Deploying Muon Apps**:
-   - Push the app to the MUON Apps repository and request the MUON team to deploy your app.
-   - MUON Apps Repository: [Muon Apps GitHub](https://github.com/muon-protocol/muon-apps/tree/master/general)
-
-2. **App Deployment Directory**:
-   - Copy the deployed apps into the `app-engine/apps` directory.
-   - Use the [LayerZero DVN app](./app-engine/apps/layerzero_dvn.js) as an example.
-
-3. **Example Usage Command**:
-    ```bash
+**Sample Request**:  
+```bash
     curl -g "http://localhost:3000/v1/?app=evm_data_verifier&method=get-block&params[network]=bsc&params[block]=47516590"
-    ```
+```
 
-4. **Signature Output**:
-   The response will include the following output signature:
-    ```json
+
+**Sample Signatures in the Response**:    
+    
+```json
     {
         "signatures": [
             {
@@ -71,11 +56,11 @@ The off-chain component provides an API endpoint for projects to execute off-cha
             "operator_address": "0x860B6912C2d0337ef05bbC89b0C2CB6CbAEAB4A5"
         }
     }
-    ```
+```
+  
+See the full response [here](http://3.136.59.242:8012/v1/?app=evm_data_verifier&method=get-block&params[network]=bsc&params[block]=47516590)
 
 ## Additional Notes
-- The signatures can be verified either on-chain or off-chain depending on the use case.
-- The security model allows for flexibility in combining proofs from different validators.
-
+Muon AVS operators can choose the MuonApps and micro-validators they wish to support. For more information, the Muon team is available to connect with operators.
 ## License
 MIT License. See LICENSE for details.
