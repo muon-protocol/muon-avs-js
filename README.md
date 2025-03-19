@@ -28,7 +28,7 @@ Muon is a general-purpose validation layer for Web3. DApps can run essential com
 
 ## Usage
 The Micro Validator Engine runs as a web service on port `3000` by default. You can send requests to various MuonApps to retrieve response and signatures.  
-For example, you can use the [EVM Verifier MuonApp](./app-engine/apps/evm_data_verifier.js)] to fetch data from EVM chains, validate it, and generate signatures. This App can be useful for interchain protocols, bridges, and more.
+For example, you can use the [EVM Verifier MuonApp](./app-engine/apps/evm_data_verifier.js) to fetch data from EVM chains, validate it, and generate signatures. This App can be useful for interchain protocols, bridges, and more.
 
 **Sample Request**:  
 ```bash
