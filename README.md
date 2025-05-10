@@ -8,27 +8,34 @@ Muon is a general-purpose validation layer for Web3. DApps can run essential com
 
 ## Setup Instructions
 
-1. **Install Dependencies**:
+1. **Clone this repository**:  
+    Because the repository contains apps submodule, add the `--recurse-submodules` flag to the `clone`/`pull` commands.
+    ```
+    git clone <the-repo> --recurse-submodules
+    git pull --recurse-submodules
+    ```
+
+2. **Install Dependencies**:
     ```
     npm i
     ```
 
-2. **Setup Environment**:
+3. **Setup Environment**:
     ```
     cp .env.example .env
     ```
     > **Note:** Set the `SIGNING_ECDSA_KEY_PATH` variable in the `.env` file to specify the path of the key file.
-3. **Start Operator**:
+4. **Start Operator**:
     ```
     KEY_PASSWORD=<key-password> pm2 start npm -- run operator
     ```
     > **Tip:** You can ignore the `KEY_PASSWORD` variable if the key file is not encrypted or if you have used an empty password.
-4. **Allow External Access to the Micro Validator Service**:  
+5. **Allow External Access to the Micro Validator Service**:  
     Check with the team to make the microservice public.
 
 ## Usage
 The Micro Validator Engine runs as a web service on port `3000` by default. You can send requests to various MuonApps to retrieve response and signatures.  
-For example, you can use the [EVM Verifier MuonApp](./app-engine/apps/evm_data_verifier.js) to fetch data from EVM chains, validate it, and generate signatures. This App can be useful for interchain protocols, bridges, and more.
+For example, you can use the [EVM Verifier MuonApp](./app-engine/apps/general/evm_data_verifier.js) to fetch data from EVM chains, validate it, and generate signatures. This App can be useful for interchain protocols, bridges, and more.
 
 **Sample Request**:  
 ```bash
